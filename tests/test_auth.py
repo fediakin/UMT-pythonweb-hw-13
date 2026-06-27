@@ -4,31 +4,31 @@
 def test_signup(client):
     response = client.post(
         "/auth/signup",
-        json={"email": "new_test_user@example.com", "password": "password123"}
+        json={"email": "new_user@example.com", "password": "password123"}
     )
     assert response.status_code == 201
-    data = response.json()
-    assert data["email"] == "new_test_user@example.com"
+    assert response.json()["email"] == "new_user@example.com"
 
 def test_signup_duplicate(client):
     response = client.post(
         "/auth/signup",
-        json={"email": "new_test_user@example.com", "password": "password123"}
+        json={"email": "new_user@example.com", "password": "password123"}
     )
     assert response.status_code == 409
 
-def test_login(client):
+def test_login_unconfirmed(client):
+    # Користувач створений, але confirmed=False (за замовчуванням)
     response = client.post(
         "/auth/login",
-        data={"username": "new_test_user@example.com", "password": "password123"}
+        data={"username": "new_user@example.com", "password": "password123"}
     )
-    # 401 тому що email ще не confirmed (за логікою нашого роутера)
-    assert response.status_code in [200, 401] 
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Email not confirmed"
 
 def test_forgot_password(client):
     response = client.post(
         "/auth/forgot-password",
-        json={"email": "new_test_user@example.com"}
+        json={"email": "new_user@example.com"}
     )
     assert response.status_code == 200
     assert "message" in response.json()

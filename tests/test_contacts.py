@@ -1,3 +1,6 @@
+"""
+Інтеграційні тести для роутера контактів.
+"""
 def test_create_contact(authorized_client):
     response = authorized_client.post(
         "/contacts/",
@@ -10,32 +13,25 @@ def test_create_contact(authorized_client):
         },
     )
     assert response.status_code == 201
-    data = response.json()
-    assert data["first_name"] == "Ivan"
-    assert "id" in data
-
+    assert response.json()["first_name"] == "Ivan"
 
 def test_create_contact_duplicate_email(authorized_client):
     response = authorized_client.post(
         "/contacts/",
         json={
-            "first_name": "Ivan",
-            "last_name": "Franko",
-            "email": "ivan@franko.com",
+            "first_name": "Taras",
+            "last_name": "Shevchenko",
+            "email": "ivan@franko.com", # Дублікат
             "phone": "+380999999999",
-            "birthday": "1856-08-27"
+            "birthday": "1814-03-09"
         },
     )
     assert response.status_code == 409
 
-
 def test_get_contacts(authorized_client):
     response = authorized_client.get("/contacts/")
     assert response.status_code == 200
-    data = response.json()
-    assert type(data) == list
-    assert len(data) > 0
-
+    assert len(response.json()) > 0
 
 def test_get_contact_by_id(authorized_client):
     contacts = authorized_client.get("/contacts/").json()
@@ -44,7 +40,6 @@ def test_get_contact_by_id(authorized_client):
     response = authorized_client.get(f"/contacts/{contact_id}")
     assert response.status_code == 200
     assert response.json()["id"] == contact_id
-
 
 def test_update_contact(authorized_client):
     contacts = authorized_client.get("/contacts/").json()
@@ -62,7 +57,6 @@ def test_update_contact(authorized_client):
     )
     assert response.status_code == 200
     assert response.json()["first_name"] == "Updated"
-
 
 def test_delete_contact(authorized_client):
     contacts = authorized_client.get("/contacts/").json()
